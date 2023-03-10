@@ -124,7 +124,7 @@ bool Game::Update()
 	if (!Input())	return true;
 
 	//Process Input
-	int fx = 0, fy = 0;
+	int fx = 0, fy = 0, FoodY = 0, launchx = 0;
 	if (keys[SDL_SCANCODE_ESCAPE] == KEY_DOWN)	return true;
 	if (keys[SDL_SCANCODE_F1] == KEY_DOWN)		god_mode = !god_mode;
 	if (Player.GetY() >= 364) {
@@ -133,20 +133,22 @@ bool Game::Update()
 	if (Player.GetY() <= 404) {
 		if (keys[SDL_SCANCODE_DOWN] == KEY_DOWN)	fy = 20;
 	}
-	//if (keys[SDL_SCANCODE_LEFT] == KEY_REPEAT)	fx = -1;
-	//if (keys[SDL_SCANCODE_RIGHT] == KEY_REPEAT)	fx = 1;
-	if (keys[SDL_SCANCODE_SPACE] == KEY_DOWN)
+	if (keys[SDL_SCANCODE_SPACE] == KEY_REPEAT)
 	{
-		int x, y, w, h;
-		Player.GetRect(&x, &y, &w, &h);
-		//size: 56x20
-		//offset from player: dx, dy = [(29, 3), (29, 59)]
-		Shots[idx_shot].Init(x + 29, y + 3, 56, 20, 10);
-		idx_shot++;
-		idx_shot %= MAX_SHOTS;
-		Shots[idx_shot].Init(x + 29, y + 59, 56, 20, 10);
-		idx_shot++;
-		idx_shot %= MAX_SHOTS;
+		width = width + 0.25f;
+		if (width >= 50) {
+			width = 50;
+			FoodY = Player.GetY();
+		}
+	}
+	else {
+		width = width - 0.25f;
+		if (width <= 0) {
+			width = 0;
+		}
+	}
+	if (keys[SDL_SCANCODE_M] == KEY_REPEAT) {
+		launchx = 1;
 	}
 
 	//Logic
@@ -156,15 +158,34 @@ bool Game::Update()
 	//Player update
 	Player.Move(fx, fy);
 	Charge.Move(fx, fy);
+	FoodM.Move(fx, fy);
+	FoodM2.Move(fx, fy);
+	FoodM3.Move(fx, fy);
 	
-	//Shots update
-	for (int i = 0; i < MAX_SHOTS; ++i)
-	{
-		if (Shots[i].IsAlive())
-		{
-			Shots[i].Move(1, 0);
-			if (Shots[i].GetX() > WINDOW_WIDTH)	Shots[i].ShutDown();
-		}
+	//Get Food
+
+	if (FoodY == Food.GetY()) {
+		FoodM.Init(150, Player.GetY() - 30, 50, 50, 5);
+	}
+	else if (FoodY == Food2.GetY()) {
+		FoodM2.Init(150, Player.GetY() - 30, 50, 50, 5);
+	}
+	else if (FoodY == Food3.GetY()) {
+		FoodM3.Init(150, Player.GetY() - 30, 50, 50, 5);
+	}
+
+	//Launch Food
+
+	for (int i = 0; i < MAX_SHOTS; ++i) {
+		if (FoodM.GetX() <= 500) FoodM.Move(launchx, 0);
+	}
+
+	for (int i = 0; i < MAX_SHOTS; ++i) {
+		if (FoodM2.GetX() <= 500) FoodM2.Move(launchx, 0);
+	}
+
+	for (int i = 0; i < MAX_SHOTS; ++i) {
+		if (FoodM3.GetX() <= 500) FoodM3.Move(launchx, 0);
 	}
 
 	//Customers update
@@ -178,6 +199,7 @@ bool Game::Update()
 void Game::Draw()
 {
 	SDL_Rect rc;
+	const int bar = width;
 
 	//Set the color used for drawing operations
 	SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
@@ -192,7 +214,7 @@ void Game::Draw()
 	SDL_RenderCopy(Renderer, img_background, NULL, &rc);
 	rc.x += rc.w;
 	SDL_RenderCopy(Renderer, img_background, NULL, &rc);
-	
+
 	//Draw player
 	Player.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	SDL_SetRenderDrawColor(Renderer, 150, 0, 150, 255);
@@ -201,6 +223,7 @@ void Game::Draw()
 
 	//Draw Charge
 	Charge.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	rc.w = bar;
 	SDL_SetRenderDrawColor(Renderer, 0, 255, 0, 255);
 	SDL_RenderFillRect(Renderer, &rc);
 
@@ -210,33 +233,38 @@ void Game::Draw()
 	SDL_RenderFillRect(Renderer, &rc);
 
 	Food2.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-	SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 0);
+	SDL_SetRenderDrawColor(Renderer, 255, 255, 0, 255);
 	SDL_RenderFillRect(Renderer, &rc);
 
 	Food3.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	SDL_SetRenderDrawColor(Renderer, 0, 0, 255, 0);
+	SDL_RenderFillRect(Renderer, &rc);
+
+	//Draw FoodM
+	FoodM.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 0);
 	SDL_RenderFillRect(Renderer, &rc);
+
+
+	FoodM2.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	SDL_SetRenderDrawColor(Renderer, 255, 255, 0, 255);
+	SDL_RenderFillRect(Renderer, &rc);
+
+	FoodM3.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	SDL_SetRenderDrawColor(Renderer, 0, 0, 255, 0);
+	SDL_RenderFillRect(Renderer, &rc);
 	
-	//Draw shots
-	for (int i = 0; i < MAX_SHOTS; ++i)
-	{
-		if (Shots[i].IsAlive())
-		{
-			Shots[i].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-			SDL_RenderCopy(Renderer, img_shot, NULL, &rc);
-			if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
-		}
-	}
 	//Draw Customers 
 	for (int i = 0; i < maxCostumers; ++i)
 	{
-			TotalCustomers[i].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-			SDL_RenderCopy(Renderer, img_shot, NULL, &rc);
-			if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
-		
+		TotalCustomers[i].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+		SDL_RenderCopy(Renderer, img_shot, NULL, &rc);
+		if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
+
 	}
 
 	//Update screen
 	SDL_RenderPresent(Renderer);
 
 	SDL_Delay(10);	// 1000/10 = 100 fps max
+}
