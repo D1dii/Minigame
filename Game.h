@@ -13,6 +13,9 @@
 #define WINDOW_HEIGHT	768
 #define MAX_KEYS		256
 #define MAX_SHOTS		1
+#define RED				1
+#define YELLOW			2
+#define BLUE			3
 
 class Game
 {

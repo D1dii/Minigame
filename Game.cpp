@@ -46,7 +46,7 @@ bool Game::Init()
 	Food3.Init(75, 484, 50, 50, 0);
 	for (int i = 0; i < maxCostumers; i++)
 	{
-		TotalCustomers[i].Init(600, WINDOW_HEIGHT / 2 /*Centers in the screen*/ - (100 * (i - 1)), 104, 82, rand()%2 +1);
+		TotalCustomers[i].Init(600, WINDOW_HEIGHT / 2 /*Centers in the screen*/ - (100 * (i - 1)), 50, 50, 0); //rand()%2 +1);
 	}
 	idx_shot = 0;
 	int w;
@@ -124,7 +124,7 @@ bool Game::Update()
 	if (!Input())	return true;
 
 	//Process Input
-	int fx = 0, fy = 0, FoodY = 0, launchx = 0;
+	int fx = 0, fy = 0, FoodY = 0, launchx = 0, FoodID = 0;
 	if (keys[SDL_SCANCODE_ESCAPE] == KEY_DOWN)	return true;
 	if (keys[SDL_SCANCODE_F1] == KEY_DOWN)		god_mode = !god_mode;
 	if (Player.GetY() >= 364) {
@@ -161,17 +161,32 @@ bool Game::Update()
 	FoodM.Move(fx, fy);
 	FoodM2.Move(fx, fy);
 	FoodM3.Move(fx, fy);
+
+	//Disable Speed at the end
+
+	if (FoodM.GetX() == 500) {
+		FoodM.SetSpeed(0);
+	}
+	if (FoodM2.GetX() == 500) {
+		FoodM2.SetSpeed(0);
+	}
+	if (FoodM3.GetX() == 500) {
+		FoodM3.SetSpeed(0);
+	}
 	
 	//Get Food
 
 	if (FoodY == Food.GetY()) {
 		FoodM.Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodID = RED;
 	}
 	else if (FoodY == Food2.GetY()) {
 		FoodM2.Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodID = YELLOW;
 	}
 	else if (FoodY == Food3.GetY()) {
 		FoodM3.Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodID = BLUE;
 	}
 
 	//Launch Food
@@ -193,6 +208,16 @@ bool Game::Update()
 	{
 		TotalCustomers[i].Move(-1, 0);
 	}
+
+	//Command
+	int Command1 = TotalCustomers[0].GetCommand();
+
+	if (FoodM.GetX() >= 500 && FoodM.GetY() == 284) {
+		if (FoodID == Command1) {
+			FoodM.Move(100, 100);
+		}
+	}
+	
 
 	return false;
 }
@@ -245,7 +270,6 @@ void Game::Draw()
 	SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 0);
 	SDL_RenderFillRect(Renderer, &rc);
 
-
 	FoodM2.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	SDL_SetRenderDrawColor(Renderer, 255, 255, 0, 255);
 	SDL_RenderFillRect(Renderer, &rc);
@@ -258,7 +282,9 @@ void Game::Draw()
 	for (int i = 0; i < maxCostumers; ++i)
 	{
 		TotalCustomers[i].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-		SDL_RenderCopy(Renderer, img_shot, NULL, &rc);
+		SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 0);
+		SDL_RenderFillRect(Renderer, &rc);
+		//SDL_RenderCopy(Renderer, img_shot, NULL, &rc);
 		if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
 
 	}

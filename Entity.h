@@ -1,4 +1,9 @@
 #pragma once
+
+#define RED				1
+#define YELLOW			2
+#define BLUE			3
+
 class Entity
 {
 public:
@@ -8,6 +13,8 @@ public:
 	void Init(int posx, int posy, int w, int h, int s);
 	void GetRect(int *posx, int *posy, int *w, int *h);
 	void SetX(int posx);
+	void SetSpeed(int vel);
+	int	 GetCommand();
 	int  GetX();
 	int  GetY();
 	int  GetWidth();
