@@ -36,7 +36,7 @@ bool Game::Init()
 	//Init variables
 	//size: 104x82
 	Player.Init(150, 384, 50, 50, 5);
-	Charge.Init(150, Player.GetY() - 20, 10, 10, 0);
+	Charge.Init(150, Player.GetY() - 20, 10, 10, 5);
 	Food.Init(75, 284, 50, 50, 0);
 	Food2.Init(75, 384, 50, 50, 0);
 	Food3.Init(75, 484, 50, 50, 0);
@@ -113,7 +113,7 @@ bool Game::Update()
 	if (keys[SDL_SCANCODE_ESCAPE] == KEY_DOWN)	return true;
 	if (keys[SDL_SCANCODE_F1] == KEY_DOWN)		god_mode = !god_mode;
 	if (Player.GetY() >= 364) {
-		if (keys[SDL_SCANCODE_UP] == KEY_DOWN)	fy = -20;
+		if (keys[SDL_SCANCODE_UP] == KEY_DOWN)			fy = -20;
 	}
 	if (Player.GetY() <= 404) {
 		if (keys[SDL_SCANCODE_DOWN] == KEY_DOWN)	fy = 20;
