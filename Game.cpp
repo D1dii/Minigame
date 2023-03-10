@@ -1,11 +1,15 @@
 #include "Game.h"
 #include <math.h>
+#include <time.h>
+#include<stdlib.h>
+
 
 Game::Game() {}
 Game::~Game(){}
 
 bool Game::Init()
 {
+	srand(time(NULL));
 	//Initialize SDL with all subsystems
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -40,6 +44,10 @@ bool Game::Init()
 	Food.Init(75, 284, 50, 50, 0);
 	Food2.Init(75, 384, 50, 50, 0);
 	Food3.Init(75, 484, 50, 50, 0);
+	for (int i = 0; i < maxCostumers; i++)
+	{
+		TotalCustomers[i].Init(600, WINDOW_HEIGHT / 2 /*Centers in the screen*/ - (100 * (i - 1)), 104, 82, rand()%2 +1);
+	}
 	idx_shot = 0;
 	int w;
 	SDL_QueryTexture(img_background, NULL, NULL, &w, NULL);
@@ -70,6 +78,12 @@ bool Game::LoadImages()
 		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
 		return false;
 	}
+	img_customer= SDL_CreateTextureFromSurface(Renderer, IMG_Load("shot.png"));
+	if (img_shot == NULL) {
+		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return false;
+	}
+
 	return true;
 }
 void Game::Release()
@@ -78,6 +92,7 @@ void Game::Release()
 	SDL_DestroyTexture(img_background);
 	SDL_DestroyTexture(img_player);
 	SDL_DestroyTexture(img_shot);
+	SDL_DestroyTexture(img_customer);
 	IMG_Quit();
 	
 	//Clean up all SDL initialized subsystems
@@ -141,8 +156,6 @@ bool Game::Update()
 	//Player update
 	Player.Move(fx, fy);
 	Charge.Move(fx, fy);
-		
-	
 	
 	//Shots update
 	for (int i = 0; i < MAX_SHOTS; ++i)
@@ -153,7 +166,13 @@ bool Game::Update()
 			if (Shots[i].GetX() > WINDOW_WIDTH)	Shots[i].ShutDown();
 		}
 	}
-		
+
+	//Customers update
+	for (int i = 0; i < maxCostumers; i++)
+	{
+		TotalCustomers[i].Move(-1, 0);
+	}
+
 	return false;
 }
 void Game::Draw()
@@ -208,9 +227,16 @@ void Game::Draw()
 			if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
 		}
 	}
+	//Draw Customers 
+	for (int i = 0; i < maxCostumers; ++i)
+	{
+			TotalCustomers[i].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+			SDL_RenderCopy(Renderer, img_shot, NULL, &rc);
+			if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
+		
+	}
 
 	//Update screen
 	SDL_RenderPresent(Renderer);
 
 	SDL_Delay(10);	// 1000/10 = 100 fps max
-}
