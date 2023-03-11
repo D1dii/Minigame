@@ -179,7 +179,7 @@ bool Game::Update()
 			width = 0;
 		}
 	}
-	if (keys[SDL_SCANCODE_M] == KEY_REPEAT) {
+	if (keys[SDL_SCANCODE_Z] == KEY_REPEAT) {
 		launchx = 1;
 	}
 
@@ -209,14 +209,17 @@ bool Game::Update()
 	if (FoodY == Food.GetY()) {
 		FoodM[0].Init(90, Player.GetY() - 30, 50, 50, 5);
 		FoodID = RED;
+		//Counter++;
 	}
 	else if (FoodY == Food2.GetY()) {
 		FoodM[1].Init(90, Player.GetY() - 30, 50, 50, 5);
 		FoodID = YELLOW;
+		//Counter++;
 	}
 	else if (FoodY == Food3.GetY()) {
 		FoodM[2].Init(90, Player.GetY() - 30, 50, 50, 5);
 		FoodID = BLUE;
+		//Counter++;
 	}
 
 	//Launch Food
@@ -240,9 +243,14 @@ bool Game::Update()
 	}
 
 	//Command
+
+	int FoodMY = 0;
+	
+	
 	for (int i = 0; i < 3; ++i) {
+		
 		if (FoodM[i].GetX() >= 155) {
-			int FoodMY = 0;
+			
 			FoodID = i;
 			if (FoodM[i].GetY() == 75) {
 				FoodMY = 0;
@@ -255,10 +263,10 @@ bool Game::Update()
 			}
 			if (FoodID == Command[FoodMY]) {
 				SDL_Delay(100);
-				FoodM[i].Init(90, Player.GetY() - 30, 0, 0, 5);
+				FoodM[i].Init(90, Player.GetY() - 30, 0, 0, 0);
 				Command[FoodMY] = TotalCustomers[i].GetCommand();
 				TotalCustomers[FoodMY].Init(640, 150 + (75 * (FoodMY - 1)), 50, 50, rand() % 2 + 1);
-				Counter += 1;
+				Counter++;
 				if (Counter == 5) {
 					GreenScreen.Init(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 					SDL_Delay(250);
@@ -266,8 +274,22 @@ bool Game::Update()
 				}
 			}
 			
+			
+		}
+		
+		
+	}
+
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			if (FoodM[i].GetX() == 155 && FoodM[j].GetX() == 155 && i != j) {
+				RedScreen.Init(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+				SDL_Delay(250);
+				return true;
+			}
 		}
 	}
+	
 	
 	
 

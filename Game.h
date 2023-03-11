@@ -43,6 +43,7 @@ private:
 	int idx_shot;
 	int Command[3];
 	int Counter = 0;
+	
 	float width;
 
 	bool god_mode;
