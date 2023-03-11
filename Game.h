@@ -13,9 +13,9 @@
 #define WINDOW_HEIGHT	768
 #define MAX_KEYS		256
 #define MAX_SHOTS		1
-#define RED				1
-#define YELLOW			2
-#define BLUE			3
+#define RED				0
+#define YELLOW			1
+#define BLUE			2
 
 class Game
 {
@@ -36,11 +36,12 @@ private:
 	SDL_Renderer *Renderer;
 	SDL_Texture *img_background, *img_player, *img_shot, *img_customer /*If there is more than one model of costumers this can be an array*/;
 
-	Entity Player, Shots[MAX_SHOTS], Scene, Food, Food2, Food3, Charge, FoodM, FoodM2, FoodM3,
+	Entity Player, Shots[MAX_SHOTS], Scene, Food, Food2, Food3, Charge, FoodM[3],
 		TotalCustomers[60]//This is the total customers of the game
 		;
 	int maxCostumers = 3; //This is the maximum of costumers on screen (1 for each row)
 	int idx_shot;
+	int Command[3];
 	float width;
 
 	bool god_mode;

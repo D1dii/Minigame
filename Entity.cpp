@@ -50,7 +50,7 @@ void Entity::SetSpeed(int vel)
 }
 int Entity::GetCommand()
 {
-	int num = rand() % 2 + 1;
+	int num = rand() % 3 + 1;
 
 	if (num == 1) {
 		return RED;

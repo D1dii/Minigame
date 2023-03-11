@@ -1,8 +1,8 @@
 #pragma once
 
-#define RED				1
-#define YELLOW			2
-#define BLUE			3
+#define RED				0
+#define YELLOW			1
+#define BLUE			2
 
 class Entity
 {

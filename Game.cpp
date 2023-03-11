@@ -46,7 +46,8 @@ bool Game::Init()
 	Food3.Init(75, 484, 50, 50, 0);
 	for (int i = 0; i < maxCostumers; i++)
 	{
-		TotalCustomers[i].Init(600, WINDOW_HEIGHT / 2 /*Centers in the screen*/ - (100 * (i - 1)), 50, 50, 0); //rand()%2 +1);
+		TotalCustomers[i].Init(600, 354 + (100 * (i - 1)), 50, 50, 0); 
+		Command[i] = TotalCustomers[i].GetCommand();
 	}
 	idx_shot = 0;
 	int w;
@@ -137,8 +138,8 @@ bool Game::Update()
 	{
 		width = width + 0.25f;
 		if (width >= 50) {
-			width = 50;
-			FoodY = Player.GetY();
+			width = 0;
+      			FoodY = Player.GetY();
 		}
 	}
 	else {
@@ -158,49 +159,49 @@ bool Game::Update()
 	//Player update
 	Player.Move(fx, fy);
 	Charge.Move(fx, fy);
-	FoodM.Move(fx, fy);
-	FoodM2.Move(fx, fy);
-	FoodM3.Move(fx, fy);
+	FoodM[0].Move(fx, fy);
+	FoodM[1].Move(fx, fy);
+	FoodM[2].Move(fx, fy);
 
 	//Disable Speed at the end
 
-	if (FoodM.GetX() == 500) {
-		FoodM.SetSpeed(0);
+	if (FoodM[0].GetX() == 500) {
+		FoodM[0].SetSpeed(0);
 	}
-	if (FoodM2.GetX() == 500) {
-		FoodM2.SetSpeed(0);
+	if (FoodM[1].GetX() == 500) {
+		FoodM[1].SetSpeed(0);
 	}
-	if (FoodM3.GetX() == 500) {
-		FoodM3.SetSpeed(0);
+	if (FoodM[2].GetX() == 500) {
+		FoodM[2].SetSpeed(0);
 	}
 	
 	//Get Food
 
 	if (FoodY == Food.GetY()) {
-		FoodM.Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodM[0].Init(150, Player.GetY() - 30, 50, 50, 5);
 		FoodID = RED;
 	}
 	else if (FoodY == Food2.GetY()) {
-		FoodM2.Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodM[1].Init(150, Player.GetY() - 30, 50, 50, 5);
 		FoodID = YELLOW;
 	}
 	else if (FoodY == Food3.GetY()) {
-		FoodM3.Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodM[2].Init(150, Player.GetY() - 30, 50, 50, 5);
 		FoodID = BLUE;
 	}
 
 	//Launch Food
 
 	for (int i = 0; i < MAX_SHOTS; ++i) {
-		if (FoodM.GetX() <= 500) FoodM.Move(launchx, 0);
+		if (FoodM[0].GetX() <= 500) FoodM[0].Move(launchx, 0);
 	}
 
 	for (int i = 0; i < MAX_SHOTS; ++i) {
-		if (FoodM2.GetX() <= 500) FoodM2.Move(launchx, 0);
+		if (FoodM[1].GetX() <= 500) FoodM[1].Move(launchx, 0);
 	}
 
 	for (int i = 0; i < MAX_SHOTS; ++i) {
-		if (FoodM3.GetX() <= 500) FoodM3.Move(launchx, 0);
+		if (FoodM[2].GetX() <= 500) FoodM[2].Move(launchx, 0);
 	}
 
 	//Customers update
@@ -210,11 +211,22 @@ bool Game::Update()
 	}
 
 	//Command
-	int Command1 = TotalCustomers[0].GetCommand();
-
-	if (FoodM.GetX() >= 500 && FoodM.GetY() == 284) {
-		if (FoodID == Command1) {
-			FoodM.Move(100, 100);
+	for (int i = 0; i < 3; ++i) {
+		if (FoodM[i].GetX() >= 500) {
+			int FoodMY = 0;
+			FoodID = i;
+			if (FoodM[i].GetY() == 254) {
+				FoodMY = 0;
+			}
+			else if (FoodM[i].GetY() == 354) {
+				FoodMY = 1;
+			}
+			else if (FoodM[i].GetY() == 454) {
+				FoodMY = 2;
+			}
+			if (FoodID == Command[FoodMY]) {
+				FoodM[i].Move(200, 0);
+			}
 		}
 	}
 	
@@ -266,15 +278,15 @@ void Game::Draw()
 	SDL_RenderFillRect(Renderer, &rc);
 
 	//Draw FoodM
-	FoodM.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	FoodM[0].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 0);
 	SDL_RenderFillRect(Renderer, &rc);
 
-	FoodM2.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	FoodM[1].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	SDL_SetRenderDrawColor(Renderer, 255, 255, 0, 255);
 	SDL_RenderFillRect(Renderer, &rc);
 
-	FoodM3.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	FoodM[2].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	SDL_SetRenderDrawColor(Renderer, 0, 0, 255, 0);
 	SDL_RenderFillRect(Renderer, &rc);
 	
