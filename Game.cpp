@@ -258,10 +258,17 @@ bool Game::Update()
 				FoodM[i].Init(90, Player.GetY() - 30, 0, 0, 5);
 				Command[FoodMY] = TotalCustomers[i].GetCommand();
 				TotalCustomers[FoodMY].Init(640, 150 + (75 * (FoodMY - 1)), 50, 50, rand() % 2 + 1);
-			
+				Counter += 1;
+				if (Counter == 5) {
+					GreenScreen.Init(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+					SDL_Delay(250);
+					return true;
+				}
 			}
+			
 		}
 	}
+	
 	
 
 	return false;
@@ -336,6 +343,15 @@ void Game::Draw()
 		if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
 
 	}
+
+	//Draw Lose & Win Screen
+	RedScreen.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 0);
+	SDL_RenderFillRect(Renderer, &rc);
+
+	GreenScreen.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	SDL_SetRenderDrawColor(Renderer, 0, 255, 0, 0);
+	SDL_RenderFillRect(Renderer, &rc);
 
 	//Update screen
 	SDL_RenderPresent(Renderer);

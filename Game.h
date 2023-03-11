@@ -36,12 +36,13 @@ private:
 	SDL_Renderer *Renderer;
 	SDL_Texture *img_background, *img_background2, *img_player, *img_food1, * img_food2, * img_food3, *img_customer1, * img_customer2, * img_customer3 /*If there is more than one model of costumers this can be an array*/;
 
-	Entity Player, Shots[MAX_SHOTS], Scene, Food, Food2, Food3, Charge, FoodM[3],
+	Entity Player, Shots[MAX_SHOTS], Scene, Food, Food2, Food3, Charge, FoodM[3], RedScreen, GreenScreen,
 		TotalCustomers[60]//This is the total customers of the game
 		;
 	int maxCostumers = 3; //This is the maximum of costumers on screen (1 for each row)
 	int idx_shot;
 	int Command[3];
+	int Counter = 0;
 	float width;
 
 	bool god_mode;
