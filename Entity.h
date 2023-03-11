@@ -18,7 +18,7 @@ public:
 	int  GetX();
 	int  GetY();
 	int  GetWidth();
-	void ShutDown(); 
+	void ShutDown();
 	bool IsAlive();
 	void Move(int dx, int dy);
 

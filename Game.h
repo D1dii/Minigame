@@ -9,8 +9,8 @@
 
 #include "Entity.h"
 
-#define WINDOW_WIDTH	1024
-#define WINDOW_HEIGHT	768
+#define WINDOW_WIDTH	640
+#define WINDOW_HEIGHT	360
 #define MAX_KEYS		256
 #define MAX_SHOTS		1
 #define RED				0
@@ -34,7 +34,7 @@ public:
 private:
 	SDL_Window *Window;
 	SDL_Renderer *Renderer;
-	SDL_Texture *img_background, *img_player, *img_shot, *img_customer /*If there is more than one model of costumers this can be an array*/;
+	SDL_Texture *img_background, *img_background2, *img_player, *img_food1, * img_food2, * img_food3, *img_customer1, * img_customer2, * img_customer3 /*If there is more than one model of costumers this can be an array*/;
 
 	Entity Player, Shots[MAX_SHOTS], Scene, Food, Food2, Food3, Charge, FoodM[3],
 		TotalCustomers[60]//This is the total customers of the game

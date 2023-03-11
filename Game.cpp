@@ -39,19 +39,20 @@ bool Game::Init()
 
 	//Init variables
 	//size: 104x82
-	Player.Init(150, 384, 50, 50, 5);
-	Charge.Init(150, Player.GetY() - 20, 10, 10, 5);
-	Food.Init(75, 284, 50, 50, 0);
-	Food2.Init(75, 384, 50, 50, 0);
-	Food3.Init(75, 484, 50, 50, 0);
+	Player.Init(90, 180, 50, 50, 5);
+	Charge.Init(90, Player.GetY() - 20, 10, 10, 5);
+	Food.Init(30, 105, 50, 0, 0);
+	Food2.Init(30, 180, 50, 0, 0);
+	Food3.Init(30, 255, 50, 0, 0);
 	for (int i = 0; i < maxCostumers; i++)
 	{
-		TotalCustomers[i].Init(600, 354 + (100 * (i - 1)), 50, 50, 0); 
+		TotalCustomers[i].Init(640, 150 + (75 * (i - 1)), 50, 50, rand() % 2 + 1);
 		Command[i] = TotalCustomers[i].GetCommand();
 	}
 	idx_shot = 0;
 	int w;
 	SDL_QueryTexture(img_background, NULL, NULL, &w, NULL);
+	SDL_QueryTexture(img_background2, NULL, NULL, &w, NULL);
 	Scene.Init(0, 0, w, WINDOW_HEIGHT, 4);
 	god_mode = false;
 
@@ -64,23 +65,48 @@ bool Game::LoadImages()
 		SDL_Log("IMG_Init, failed to init required png support: %s\n", IMG_GetError());
 		return false;
 	}
-	img_background = SDL_CreateTextureFromSurface(Renderer, IMG_Load("background.png"));
+	img_background = SDL_CreateTextureFromSurface(Renderer, IMG_Load("background1.png"));
 	if (img_background == NULL) {
 		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
 		return false;
 	}
-	img_player = SDL_CreateTextureFromSurface(Renderer, IMG_Load("spaceship.png"));
+	img_background2 = SDL_CreateTextureFromSurface(Renderer, IMG_Load("background2.png"));
+	if (img_background2 == NULL) {
+		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return false;
+	}
+	img_player = SDL_CreateTextureFromSurface(Renderer, IMG_Load("p.idling.png"));
 	if (img_player == NULL) {
 		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
 		return false;
 	}
-	img_shot = SDL_CreateTextureFromSurface(Renderer, IMG_Load("shot.png"));
-	if (img_shot == NULL) {
+	img_food1 = SDL_CreateTextureFromSurface(Renderer, IMG_Load("lasana.png"));
+	if (img_food1 == NULL) {
 		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
 		return false;
 	}
-	img_customer= SDL_CreateTextureFromSurface(Renderer, IMG_Load("shot.png"));
-	if (img_shot == NULL) {
+	img_food2 = SDL_CreateTextureFromSurface(Renderer, IMG_Load("spaguetti.png"));
+	if (img_food2 == NULL) {
+		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return false;
+	}
+	img_food3 = SDL_CreateTextureFromSurface(Renderer, IMG_Load("pizza.png"));
+	if (img_food3 == NULL) {
+		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return false;
+	}
+	img_customer1= SDL_CreateTextureFromSurface(Renderer, IMG_Load("cliente lasana.png"));
+	if (img_customer1 == NULL) {
+		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return false;
+	}
+	img_customer2 = SDL_CreateTextureFromSurface(Renderer, IMG_Load("cliente spaghetti.png"));
+	if (img_customer2 == NULL) {
+		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return false;
+	}
+	img_customer3 = SDL_CreateTextureFromSurface(Renderer, IMG_Load("cliente pizza.png"));
+	if (img_customer3 == NULL) {
 		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
 		return false;
 	}
@@ -91,9 +117,14 @@ void Game::Release()
 {
 	//Release images
 	SDL_DestroyTexture(img_background);
+	SDL_DestroyTexture(img_background2);
 	SDL_DestroyTexture(img_player);
-	SDL_DestroyTexture(img_shot);
-	SDL_DestroyTexture(img_customer);
+	SDL_DestroyTexture(img_food1);
+	SDL_DestroyTexture(img_food2);
+	SDL_DestroyTexture(img_food3);
+	SDL_DestroyTexture(img_customer1);
+	SDL_DestroyTexture(img_customer2);
+	SDL_DestroyTexture(img_customer3);
 	IMG_Quit();
 	
 	//Clean up all SDL initialized subsystems
@@ -128,15 +159,15 @@ bool Game::Update()
 	int fx = 0, fy = 0, FoodY = 0, launchx = 0, FoodID = 0;
 	if (keys[SDL_SCANCODE_ESCAPE] == KEY_DOWN)	return true;
 	if (keys[SDL_SCANCODE_F1] == KEY_DOWN)		god_mode = !god_mode;
-	if (Player.GetY() >= 364) {
-		if (keys[SDL_SCANCODE_UP] == KEY_DOWN)			fy = -20;
+	if (Player.GetY() >= 165) {
+		if (keys[SDL_SCANCODE_UP] == KEY_DOWN)			fy = -15;
 	}
-	if (Player.GetY() <= 404) {
-		if (keys[SDL_SCANCODE_DOWN] == KEY_DOWN)	fy = 20;
+	if (Player.GetY() <= 195) {
+		if (keys[SDL_SCANCODE_DOWN] == KEY_DOWN)	fy = 15;
 	}
 	if (keys[SDL_SCANCODE_SPACE] == KEY_REPEAT)
 	{
-		width = width + 0.25f;
+		width = width + 0.35f;
 		if (width >= 50) {
 			width = 0;
       			FoodY = Player.GetY();
@@ -153,9 +184,7 @@ bool Game::Update()
 	}
 
 	//Logic
-	//Scene scroll
-	Scene.Move(-1, 0);
-	if (Scene.GetX() <= -Scene.GetWidth())	Scene.SetX(0);
+	
 	//Player update
 	Player.Move(fx, fy);
 	Charge.Move(fx, fy);
@@ -165,67 +194,71 @@ bool Game::Update()
 
 	//Disable Speed at the end
 
-	if (FoodM[0].GetX() == 500) {
+	if (FoodM[0].GetX() == 155) {
 		FoodM[0].SetSpeed(0);
 	}
-	if (FoodM[1].GetX() == 500) {
+	if (FoodM[1].GetX() == 155) {
 		FoodM[1].SetSpeed(0);
 	}
-	if (FoodM[2].GetX() == 500) {
+	if (FoodM[2].GetX() == 155) {
 		FoodM[2].SetSpeed(0);
 	}
 	
 	//Get Food
 
 	if (FoodY == Food.GetY()) {
-		FoodM[0].Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodM[0].Init(90, Player.GetY() - 30, 50, 50, 5);
 		FoodID = RED;
 	}
 	else if (FoodY == Food2.GetY()) {
-		FoodM[1].Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodM[1].Init(90, Player.GetY() - 30, 50, 50, 5);
 		FoodID = YELLOW;
 	}
 	else if (FoodY == Food3.GetY()) {
-		FoodM[2].Init(150, Player.GetY() - 30, 50, 50, 5);
+		FoodM[2].Init(90, Player.GetY() - 30, 50, 50, 5);
 		FoodID = BLUE;
 	}
 
 	//Launch Food
 
 	for (int i = 0; i < MAX_SHOTS; ++i) {
-		if (FoodM[0].GetX() <= 500) FoodM[0].Move(launchx, 0);
+		if (FoodM[0].GetX() <= 155) FoodM[0].Move(launchx, 0);
 	}
 
 	for (int i = 0; i < MAX_SHOTS; ++i) {
-		if (FoodM[1].GetX() <= 500) FoodM[1].Move(launchx, 0);
+		if (FoodM[1].GetX() <= 155) FoodM[1].Move(launchx, 0);
 	}
 
 	for (int i = 0; i < MAX_SHOTS; ++i) {
-		if (FoodM[2].GetX() <= 500) FoodM[2].Move(launchx, 0);
+		if (FoodM[2].GetX() <= 155) FoodM[2].Move(launchx, 0);
 	}
 
 	//Customers update
 	for (int i = 0; i < maxCostumers; i++)
 	{
-		TotalCustomers[i].Move(-1, 0);
+		if(TotalCustomers[i].GetX() > 210) TotalCustomers[i].Move(-1, 0);
 	}
 
 	//Command
 	for (int i = 0; i < 3; ++i) {
-		if (FoodM[i].GetX() >= 500) {
+		if (FoodM[i].GetX() >= 155) {
 			int FoodMY = 0;
 			FoodID = i;
-			if (FoodM[i].GetY() == 254) {
+			if (FoodM[i].GetY() == 75) {
 				FoodMY = 0;
 			}
-			else if (FoodM[i].GetY() == 354) {
+			else if (FoodM[i].GetY() == 150) {
 				FoodMY = 1;
 			}
-			else if (FoodM[i].GetY() == 454) {
+			else if (FoodM[i].GetY() == 225) {
 				FoodMY = 2;
 			}
 			if (FoodID == Command[FoodMY]) {
-				FoodM[i].Move(200, 0);
+				SDL_Delay(100);
+				FoodM[i].Init(90, Player.GetY() - 30, 0, 0, 5);
+				Command[FoodMY] = TotalCustomers[i].GetCommand();
+				TotalCustomers[FoodMY].Init(640, 150 + (75 * (FoodMY - 1)), 50, 50, rand() % 2 + 1);
+			
 			}
 		}
 	}
@@ -249,13 +282,13 @@ void Game::Draw()
 	//Draw scene
 	Scene.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	SDL_RenderCopy(Renderer, img_background, NULL, &rc);
-	rc.x += rc.w;
-	SDL_RenderCopy(Renderer, img_background, NULL, &rc);
+
+	Scene.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
+	SDL_RenderCopy(Renderer, img_background2, NULL, &rc);
 
 	//Draw player
 	Player.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-	SDL_SetRenderDrawColor(Renderer, 150, 0, 150, 255);
-	SDL_RenderFillRect(Renderer, &rc);
+	SDL_RenderCopy(Renderer, img_player, NULL, &rc);
 	if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
 
 	//Draw Charge
@@ -266,8 +299,7 @@ void Game::Draw()
 
 	//Draw Food
 	Food.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-	SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 0);
-	SDL_RenderFillRect(Renderer, &rc);
+	SDL_RenderCopy(Renderer, img_food1, NULL, &rc);
 
 	Food2.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	SDL_SetRenderDrawColor(Renderer, 255, 255, 0, 255);
@@ -279,24 +311,28 @@ void Game::Draw()
 
 	//Draw FoodM
 	FoodM[0].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-	SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 0);
-	SDL_RenderFillRect(Renderer, &rc);
+	SDL_RenderCopy(Renderer, img_food1, NULL, &rc);
 
 	FoodM[1].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-	SDL_SetRenderDrawColor(Renderer, 255, 255, 0, 255);
-	SDL_RenderFillRect(Renderer, &rc);
+	SDL_RenderCopy(Renderer, img_food2, NULL, &rc);
 
 	FoodM[2].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-	SDL_SetRenderDrawColor(Renderer, 0, 0, 255, 0);
-	SDL_RenderFillRect(Renderer, &rc);
+	SDL_RenderCopy(Renderer, img_food3, NULL, &rc);
 	
 	//Draw Customers 
 	for (int i = 0; i < maxCostumers; ++i)
 	{
 		TotalCustomers[i].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-		SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 0);
-		SDL_RenderFillRect(Renderer, &rc);
-		//SDL_RenderCopy(Renderer, img_shot, NULL, &rc);
+		if (Command[i] == 0) {
+			SDL_RenderCopy(Renderer, img_customer1, NULL, &rc);
+		}
+		else if (Command[i] == 1) {
+			SDL_RenderCopy(Renderer, img_customer2, NULL, &rc);
+		}
+		else if (Command[i] == 2) {
+			SDL_RenderCopy(Renderer, img_customer3, NULL, &rc);
+		}
+		
 		if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
 
 	}
