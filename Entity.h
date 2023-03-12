@@ -4,6 +4,7 @@
 #define YELLOW			1
 #define BLUE			2
 
+
 class Entity
 {
 public:

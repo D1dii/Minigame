@@ -6,6 +6,8 @@
 #pragma comment( lib, "SDL/libx86/SDL2main.lib" )
 #pragma comment( lib, "SDL_image/libx86/SDL2_image.lib" )
 
+#include "SDL_Mixer/include/SDL_mixer.h"
+#pragma comment( lib, "SDL_Mixer/lib_x86/SDL2_mixer.lib")
 
 #include "Entity.h"
 
@@ -16,6 +18,7 @@
 #define RED				0
 #define YELLOW			1
 #define BLUE			2
+#define MAX_TRACKS		8
 
 class Game
 {
@@ -25,6 +28,7 @@ public:
 
 	bool Init();
 	bool LoadImages();
+	bool LoadAudios();
 	void Release();
 	
 	bool Input();
@@ -50,4 +54,11 @@ private:
 
 	enum KEY_STATE { KEY_IDLE, KEY_DOWN, KEY_REPEAT, KEY_UP	};
 	KEY_STATE keys[MAX_KEYS]; 
+
+	Mix_Music* tracks[MAX_TRACKS];
+	int num_tracks;
+
+	Mix_Chunk* sfxs[MAX_SHOTS];
+	int num_sfxs;
+	
 };
