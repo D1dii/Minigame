@@ -58,7 +58,7 @@ private:
 	Mix_Music* tracks[MAX_TRACKS];
 	int num_tracks;
 
-	Mix_Chunk* sfxs[MAX_SHOTS];
-	int num_sfxs;
+	//Mix_Chunk* sfxs[MAX_SHOTS];
+	//int num_sfxs;
 	
 };

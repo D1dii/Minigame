@@ -3,8 +3,6 @@
 #include<stdlib.h>
 
 
-
-
 Entity::Entity()
 {
 	is_alive = false;

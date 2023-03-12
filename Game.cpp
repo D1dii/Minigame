@@ -37,11 +37,25 @@ bool Game::Init()
 	if (!LoadImages())
 		return false;
 
+	//Init SDL_Mixer
+	int flags = MIX_INIT_OGG;
+	if (Mix_Init(flags) != flags) {
+		SDL_Log("Failed to init OGG module for SDL_Mixer!\n");
+		SDL_Log("Mix_Init: %s\n", Mix_GetError());
+		return false;
+	}
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
+		SDL_Log("Failed to init SDL_Mixer!\n");
+		SDL_Log("Mix_OpenAudio: %s\n", Mix_GetError());
+		return false;
+	}
+
+	//Load Audios
 	if (!LoadAudios())
 		return false;
 
 	//Init variables
-	//size: 104x82
+	//size: 50x50
 	Player.Init(90, 180, 50, 50, 5);
 	Charge.Init(90, Player.GetY() - 20, 10, 10, 5);
 	Food.Init(30, 105, 50, 0, 0);
@@ -118,24 +132,10 @@ bool Game::LoadImages()
 }
 bool Game::LoadAudios() {
 
-	int flags = MIX_INIT_OGG;
-	if (Mix_Init(flags) != flags) {
-		SDL_Log("Failed to init OGG module for SDL_Mixer!\n");
-		SDL_Log("Mix_Init: %s\n", Mix_GetError());
-		return false;
-	}
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
-		SDL_Log("Failed to init SDL_Mixer!\n");
-		SDL_Log("Mix_OpenAudio: %s\n", Mix_GetError());
-		return false;
-	}
-
 	num_tracks = 0;
-	tracks[num_tracks++] = Mix_LoadMUS("musica.ogg");
+	tracks[num_tracks++] = Mix_LoadMUS("OST.ogg");
 
 	Mix_PlayMusic(tracks[0], -1);
-
-	
 
 	return true;
 }
@@ -154,9 +154,11 @@ void Game::Release()
 	SDL_DestroyTexture(img_customer3);
 	IMG_Quit();
  
+	//Free Audios
 	for (int i = 0; i < num_tracks; ++i)
 		Mix_FreeMusic(tracks[i]);
 
+	//Close SDL_Mixer
 	Mix_CloseAudio();
 	while (Mix_Init(0))
 		Mix_Quit();
