@@ -303,7 +303,7 @@ bool Game::Update()
 				FoodM[i].Init(180, Player.GetY() - 30, 0, 0, 0);
 				Command[FoodMY] = TotalCustomers[i].GetCommand();
 				TotalCustomers[FoodMY].Init(WINDOW_WIDTH, 300 + (150 * (FoodMY - 1)), 100, 100, rand() % 2 + 1);
-				Counter++;
+				
 				if (Counter == 5) {
 					GreenScreen.Init(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 					SDL_Delay(250);
